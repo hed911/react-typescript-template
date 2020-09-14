@@ -157,7 +157,7 @@ const Services: React.FC<Props> = ({}) => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const result = await axios("http://localhost:4000/v1/services");
+        const result = await axios("http://localhost:4000/v1/services"); // add the GET URI dynamically
 
         parseData(result.data);
       } catch (err) {
@@ -167,7 +167,10 @@ const Services: React.FC<Props> = ({}) => {
     fetchData();
   }, []);
 
-  let parseData = (response: AxiosResponse) => {};
+  let parseData = (response: AxiosResponse) => {
+    // implement this ...
+    // parse the data and store that in (fetchedData)
+  };
 
   return (
     <>
