@@ -150,26 +150,51 @@ const Services: React.FC<Props> = ({}) => {
   };
 
   const [loading, setLoading] = useState(false);
-  const [fetchedData, setFetchedData] = useState([]);
-  const [totalPages, setTotalPages] = useState([]);
+  const [fetchedData, setFetchedData] = useState<Array<TableData>>([]);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     setLoading(true);
     const fetchData = async () => {
       try {
         const result = await axios("http://localhost:4000/v1/services"); // add the GET URI dynamically
-
         parseData(result.data);
       } catch (err) {
-        alert("Ocurrió un error porfavor reintente");
+        alert(`Ocurrió un error porfavor reintente ${err}`);
       }
     };
     fetchData();
   }, []);
 
+  interface TableData {
+    id: number;
+    contents: Array<string>;
+    actions: Array<string>;
+  }
+
   let parseData = (response: AxiosResponse) => {
-    // implement this ...
-    // parse the data and store that in (fetchedData)
+    let myData: Array<TableData> = [];
+    response.data.items.forEach(function (item: any) {
+      let actions = ["edit"];
+      if (item.categoria_enum == 1) {
+        actions.push("aprobe");
+        actions.push("delete");
+      }
+      myData.push({
+        id: item.id,
+        contents: [
+          item.id,
+          item.estado,
+          item.tipo,
+          item.categoria,
+          item.empresa_asignada,
+          item.solicitante,
+          item.fecha,
+        ],
+        actions: actions,
+      });
+    });
+    setFetchedData(myData);
   };
 
   return (
@@ -185,7 +210,7 @@ const Services: React.FC<Props> = ({}) => {
               <div className="table-responsive">
                 <DynamicTable
                   headers={tableHeaders}
-                  data={data}
+                  data={fetchedData}
                   actions={actions}
                   actionTriggered={actionTriggered}
                 />
