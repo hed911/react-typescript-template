@@ -22,4 +22,5 @@ X Hace que la funcion click ejecute una funcion del componente padre
 - Generar los parametros del GET de la URL de manera dinamica apartir de
   los campos que esten seleccionados en el panel de filtros izquierdo "?numero_documento=1020&tipo=1..."
 - Hacer que cada vez que se hace click en buscar, se ejecute el llamado hacia la API pero con los parametros escogidos
-- Hacer el parseo de los datos que vienen de la API hacia el objeto fetchedData
+  X Hacer el parseo de los datos que vienen de la API hacia el objeto fetchedData
+- Handle empty state when table is empty and when there are errors

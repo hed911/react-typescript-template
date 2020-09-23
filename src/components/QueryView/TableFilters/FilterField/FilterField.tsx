@@ -1,13 +1,14 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 
 import styles from "./FilterField.module.css";
 import { InputDescriptor } from "../TableFilters";
 
 type Props = {
   descriptor: InputDescriptor;
+  actionTriggered(action: string): any;
 };
 
-const FilterField: React.FC<Props> = ({ descriptor }) => {
+const FilterField: React.FC<Props> = ({ descriptor, actionTriggered }) => {
   let classes = ["form-control"];
   if (descriptor.upCase === true) {
     classes.push(styles.upcase);
@@ -15,7 +16,12 @@ const FilterField: React.FC<Props> = ({ descriptor }) => {
   if (descriptor.classes) {
     classes = classes.concat(descriptor.classes);
   }
-  let clicked = () => {};
+  let clicked = (e: React.MouseEvent<HTMLElement>) => {
+    if (descriptor.type == "submit") {
+      e.preventDefault();
+      actionTriggered(descriptor.name);
+    }
+  };
   let input = (
     <input
       name={descriptor.name}
@@ -25,7 +31,7 @@ const FilterField: React.FC<Props> = ({ descriptor }) => {
       max={descriptor.max}
       placeholder={descriptor.placeholder}
       className={classes.join(" ")}
-      onClick={clicked}
+      onClick={(e: React.MouseEvent<HTMLElement>) => clicked(e)}
     />
   );
   if (descriptor.type === "select") {

@@ -23,17 +23,17 @@ export type InputDescriptor = {
 
 type Props = {
   elements: Array<InputDescriptor>;
+  actionTriggered(action: string): any;
 };
 
-const TableFilters: React.FC<Props> = ({ elements }) => {
-  const items = elements.map((element) => <FilterField descriptor={element} />);
+const TableFilters: React.FC<Props> = ({ elements, actionTriggered }) => {
+  const items = elements.map((element) => (
+    <FilterField descriptor={element} actionTriggered={actionTriggered} />
+  ));
   return (
     <form>
       <div className="">
         <div className="panel panel-primary">
-          <div className="panel-heading">
-            <h3 className="panel-title">Filtros</h3>
-          </div>
           <div className="panel-body">{items}</div>
         </div>
       </div>
