@@ -24,11 +24,20 @@ export type InputDescriptor = {
 type Props = {
   elements: Array<InputDescriptor>;
   actionTriggered(action: string): any;
+  valueChanged(name: string, value: string): any;
 };
 
-const TableFilters: React.FC<Props> = ({ elements, actionTriggered }) => {
+const TableFilters: React.FC<Props> = ({
+  elements,
+  actionTriggered,
+  valueChanged,
+}) => {
   const items = elements.map((element) => (
-    <FilterField descriptor={element} actionTriggered={actionTriggered} />
+    <FilterField
+      descriptor={element}
+      actionTriggered={actionTriggered}
+      valueChanged={valueChanged}
+    />
   ));
   return (
     <form>

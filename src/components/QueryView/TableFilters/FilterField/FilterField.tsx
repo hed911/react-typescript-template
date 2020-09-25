@@ -6,9 +6,14 @@ import { InputDescriptor } from "../TableFilters";
 type Props = {
   descriptor: InputDescriptor;
   actionTriggered(action: string): any;
+  valueChanged(name: string, value: string): any;
 };
 
-const FilterField: React.FC<Props> = ({ descriptor, actionTriggered }) => {
+const FilterField: React.FC<Props> = ({
+  descriptor,
+  actionTriggered,
+  valueChanged,
+}) => {
   let classes = ["form-control"];
   if (descriptor.upCase === true) {
     classes.push(styles.upcase);
@@ -32,6 +37,9 @@ const FilterField: React.FC<Props> = ({ descriptor, actionTriggered }) => {
       placeholder={descriptor.placeholder}
       className={classes.join(" ")}
       onClick={(e: React.MouseEvent<HTMLElement>) => clicked(e)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+        valueChanged(e.target.name, e.target.value)
+      }
     />
   );
   if (descriptor.type === "select") {
@@ -47,7 +55,13 @@ const FilterField: React.FC<Props> = ({ descriptor, actionTriggered }) => {
       ));
     }
     input = (
-      <select className="form-control" name={descriptor.name}>
+      <select
+        className="form-control"
+        name={descriptor.name}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+          valueChanged(e.target.name, e.target.value)
+        }
+      >
         <option selected={descriptor.selectedItemKey === ""}>
           {descriptor.placeholder}
         </option>

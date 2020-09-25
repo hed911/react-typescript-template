@@ -13,35 +13,111 @@ enum DataState {
   Error,
 }
 const Services: React.FC<Props> = ({}) => {
-  const filterElements = [
-    { name: "id", type: "text", placeholder: "Id" },
+  interface FilterElement {
+    name: string;
+    type: string;
+    placeholder: string;
+    value?: string;
+    upCase?: boolean;
+    items?: Array<UrlItem>;
+    selectedItemKey?: string;
+    classes?: Array<string>;
+  }
+
+  let tableHeaders = [
+    "Id",
+    "Estado",
+    "Tipo",
+    "Categoria",
+    "Empresa Asignada",
+    "Solicitante",
+    "Fecha",
+  ];
+  const actions = {
+    edit: {
+      theClass: "btn btn-primary",
+      label: "Editar",
+    },
+    aprobe: {
+      theClass: "btn btn-warning",
+      label: "Aprobar",
+    },
+    delete: {
+      theClass: "btn btn-danger",
+      label: "Borrar",
+    },
+  };
+
+  let actionTriggered = (id: number, action: string) => {
+    alert(`number:${id}, action:${action}`);
+  };
+  let pageChanged = (page: number, step: number) => {
+    setCurrentPage(page);
+    setCurrentStep(step);
+    //(`page=${page} and step=${step}`);
+    fetchData(page);
+  };
+  const filterActionTriggered = (action: string) => {
+    if (action === "buscar") {
+      fetchData();
+    } else {
+      alert(currentPage);
+    }
+  };
+  const valueChanged = (name: string, value: string) => {
+    let updatedFilterElements = [...filterElements];
+    updatedFilterElements.forEach(function (item: FilterElement) {
+      if (item.name == name) {
+        if (item.type == "text" || item.type == "date") {
+          item.value = value;
+        } else {
+          if (item.type == "select") {
+            item.selectedItemKey = value;
+          }
+        }
+      }
+    });
+    setFilterElements(updatedFilterElements);
+  };
+
+  const [dataState, setDataState] = useState(DataState.Loading);
+  const [fetchedData, setFetchedData] = useState<Array<TableData>>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filterElements, setFilterElements] = useState<Array<FilterElement>>([
+    { name: "id", type: "text", placeholder: "Id", value: "" },
     {
       name: "numero_documento",
       type: "text",
       placeholder: "Numero de documento",
+      value: "",
     },
     {
       name: "primer_nombre",
       type: "text",
       placeholder: "Primer nombre",
       upCase: true,
+      value: "",
     },
     {
       name: "primer_apellido",
       type: "text",
       placeholder: "Primer apellido",
       upCase: true,
+      value: "",
     },
     {
       name: "fecha_inicio",
       type: "date",
       placeholder: "Fecha inicio",
+      value: "",
     },
     {
       name: "fecha_fin",
       type: "date",
       placeholder: "Fecha fin",
-      value: "1990-12-12",
+      value: "",
     },
     {
       name: "estado",
@@ -86,53 +162,7 @@ const Services: React.FC<Props> = ({}) => {
       value: "Exportar V2",
       classes: ["btn", "btn-warning"],
     },
-  ];
-  let tableHeaders = [
-    "Id",
-    "Estado",
-    "Tipo",
-    "Categoria",
-    "Empresa Asignada",
-    "Solicitante",
-    "Fecha",
-  ];
-  const actions = {
-    edit: {
-      theClass: "btn btn-primary",
-      label: "Editar",
-    },
-    aprobe: {
-      theClass: "btn btn-warning",
-      label: "Aprobar",
-    },
-    delete: {
-      theClass: "btn btn-danger",
-      label: "Borrar",
-    },
-  };
-
-  let actionTriggered = (id: number, action: string) => {
-    alert(`number:${id}, action:${action}`);
-  };
-  let pageChanged = (page: number, step: number) => {
-    setCurrentPage(page);
-    setCurrentStep(step);
-    //(`page=${page} and step=${step}`);
-    fetchData(page);
-  };
-  let filterActionTriggered = (action: string) => {
-    if (action === "buscar") {
-      fetchData();
-    } else {
-      alert(currentPage);
-    }
-  };
-
-  const [dataState, setDataState] = useState(DataState.Loading);
-  const [fetchedData, setFetchedData] = useState<Array<TableData>>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -142,8 +172,9 @@ const Services: React.FC<Props> = ({}) => {
     setDataState(DataState.Loading);
     const execute = async () => {
       try {
+        const params = filterParamsUrl();
         const result = await axios(
-          `http://localhost:4000/v1/services?page=${page}&size=${10}`
+          `http://localhost:4000/v1/services?page=${page}&size=${10}&${params}`
         );
         parseData(result.data);
         setDataState(DataState.Loaded);
@@ -160,6 +191,35 @@ const Services: React.FC<Props> = ({}) => {
     contents: Array<string>;
     actions: Array<string>;
   }
+
+  interface UrlItem {
+    key: string;
+    value: string;
+  }
+
+  const filterParams = (): Array<UrlItem> => {
+    const result: Array<UrlItem> = [];
+    filterElements.forEach(function (item: FilterElement) {
+      if (item.type == "text" || item.type == "date") {
+        result.push({ key: item.name, value: item.value! });
+      } else {
+        if (item.type == "select") {
+          result.push({ key: item.name, value: item.selectedItemKey! });
+        }
+      }
+    });
+    return result;
+  };
+
+  const filterParamsUrl = (): string => {
+    let result: Array<string> = [];
+    filterParams()
+      .filter((i) => i.value !== "")
+      .forEach(function (item: UrlItem) {
+        result.push(`${item.key}=${item.value}`);
+      });
+    return result.join("&");
+  };
 
   let parseData = (response: AxiosResponse) => {
     let myData: Array<TableData> = [];
@@ -301,6 +361,7 @@ const Services: React.FC<Props> = ({}) => {
           <TableFilters
             elements={filterElements}
             actionTriggered={filterActionTriggered}
+            valueChanged={valueChanged}
           />
           <div className="col-10">{table}</div>
         </div>
