@@ -24,9 +24,10 @@ los campos que esten seleccionados en el panel de filtros izquierdo "?numero_doc
 X Hacer que cada vez que se hace click en buscar, se ejecute el llamado hacia la API pero con los parametros escogidos
 X Hacer el parseo de los datos que vienen de la API hacia el objeto fetchedData
 X Handle empty state when table is empty and when there are errors
-
 X encoderURL params sent to the API
+X Study useCallback
+X Create a custom hook to make HTTP requests
 
-- Study useCallback
-- Create a custom hook to make HTTP requests
+- Put OnComponentDidMount() on every component to see if there are many re-renders
+- Study to see if the way I put the logic is fine (I think the logic must be moved to the Services component)
 - Do authentication, study how works the routing system

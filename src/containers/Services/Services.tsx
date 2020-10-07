@@ -3,6 +3,9 @@ import React, { useState, useEffect, useReducer } from "react";
 import TableFilters from "../../components/QueryView/TableFilters/TableFilters";
 import DynamicTable from "../../components/QueryView/DynamicTable/DynamicTable";
 import TablePagination from "../../components/QueryView/TablePagination/TablePagination";
+import DynamicForm, {
+  InputDescriptor,
+} from "../../components/QueryView/DynamicForm/DynamicForm";
 import useHttp from "../../hooks/http";
 import styles from "./Services.module.css";
 type Props = {};
@@ -170,7 +173,11 @@ const Services: React.FC<Props> = ({}) => {
     let updatedFilterElements = [...filterElements];
     updatedFilterElements.forEach(function (item: FilterElement) {
       if (item.name == name) {
-        if (item.type == "text" || item.type == "date") {
+        if (
+          item.type == "text" ||
+          item.type == "date" ||
+          item.type == "number"
+        ) {
           item.value = value;
         } else {
           if (item.type == "select") {
@@ -364,6 +371,142 @@ const Services: React.FC<Props> = ({}) => {
     }
   }
 
+  // ------------------------------------------------------------------- NEW RECORD --
+  const newRecordInitialElements: Array<InputDescriptor> = [
+    {
+      displayName: "Primer nombre",
+      name: "primer_nombre",
+      type: "text",
+      placeholder: "",
+      value: "",
+      required: true,
+    },
+    {
+      displayName: "Segundo nombre",
+      name: "segundo_nombre",
+      type: "text",
+      placeholder: "",
+      value: "",
+      required: false,
+    },
+    {
+      displayName: "Primer apellido",
+      name: "primer_apellido",
+      type: "text",
+      placeholder: "",
+      value: "",
+      required: true,
+    },
+    {
+      displayName: "Segundo apellido",
+      name: "segundo_apellido",
+      type: "text",
+      placeholder: "",
+      value: "",
+      required: false,
+    },
+    {
+      displayName: "Edad",
+      name: "edad",
+      min: 0,
+      max: 200,
+      type: "number",
+      placeholder: "",
+      value: "",
+      required: true,
+    },
+    {
+      displayName: "Estado civil",
+      name: "estado_civil",
+      type: "select",
+      placeholder: "Escoja una opcion",
+      items: [
+        { key: "1", value: "Soltero" },
+        { key: "2", value: "Casado" },
+        { key: "3", value: "Union libre" },
+      ],
+      selectedItemKey: "",
+      required: true,
+    },
+    {
+      displayName: "Fecha nacimiento",
+      name: "fecha_nacimiento",
+      type: "date",
+      placeholder: "",
+      value: "",
+      required: true,
+    },
+    {
+      displayName: "Observación",
+      name: "id",
+      type: "textarea",
+      placeholder: "Escriba aqui algo",
+      value: "",
+      required: true,
+    },
+  ];
+
+  const [showNewRecordForm, setShowNewRecordForm] = useState(true);
+  const [newRecordElements, setNewRecordElements] = useState<
+    Array<InputDescriptor>
+  >(newRecordInitialElements);
+  const httpHookNewRecord = useHttp();
+  const clearNewRecordForm = httpHookNewRecord.clear;
+  const dataNewRecordForm = httpHookNewRecord.data;
+  const errorNewRecordForm = httpHookNewRecord.error;
+  const isLoadingNewRecordForm = httpHookNewRecord.isLoading;
+  const reqExtraNewRecordForm = httpHookNewRecord.reqExtra;
+  const reqIdentifierNewRecordForm = httpHookNewRecord.reqIdentifer;
+  const sendRequestNewRecordForm = httpHookNewRecord.sendRequest;
+
+  const submittedNewRecordForm = (data: any) => {
+    // HERE GOES THE HTTP LOGIC!!
+    //fetchData(currentPage);
+    setShowNewRecordForm(false);
+    setNewRecordElements(newRecordInitialElements);
+  };
+
+  const newRecordFormValueChanged = (name: string, value: string) => {
+    let updatedNewRecordElements = [...newRecordElements];
+    updatedNewRecordElements.forEach(function (item: InputDescriptor) {
+      if (item.name == name) {
+        if (
+          item.type == "text" ||
+          item.type == "date" ||
+          item.type == "number" ||
+          item.type == "textarea"
+        ) {
+          item.value = value;
+        } else {
+          if (item.type == "select") {
+            item.selectedItemKey = value;
+          }
+        }
+      }
+    });
+    setNewRecordElements(updatedNewRecordElements);
+  };
+
+  const closeNewRecordForm = () => {
+    setShowNewRecordForm(false);
+  };
+
+  const newRecordForm = (
+    <DynamicForm
+      elements={newRecordElements}
+      title="Nuevo servicio"
+      submitText="Crear registro"
+      show={showNewRecordForm}
+      size="lg"
+      submitEnabled={isLoadingNewRecordForm}
+      handleClose={() => closeNewRecordForm()}
+      submitted={(data: any) => submittedNewRecordForm(data)}
+      valueChanged={(name: string, value: string) =>
+        newRecordFormValueChanged(name, value)
+      }
+    />
+  );
+
   return (
     <>
       <div className="container-fluid">
@@ -379,6 +522,7 @@ const Services: React.FC<Props> = ({}) => {
           <div className="col-10">{table}</div>
         </div>
       </div>
+      {newRecordForm}
     </>
   );
 };
